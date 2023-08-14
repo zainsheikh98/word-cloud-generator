@@ -12,7 +12,7 @@ yarn dev
 
 ## Contributing
 
-- Create a pull request on SkyScanner with a feature-branch
+- Create a pull request on Word Cloud Generator with a feature-branch
 
 ## Author
 
