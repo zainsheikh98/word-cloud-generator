@@ -43,4 +43,4 @@ const WordCloud = ({ words }: WordCloudProps) => {
   )
 }
 
-export default WordCloud
+export default React.memo(WordCloud)

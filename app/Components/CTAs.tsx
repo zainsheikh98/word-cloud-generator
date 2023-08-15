@@ -21,7 +21,9 @@ const CTAs = () => {
   const [
     getWords,
     { loading: loadingWords, data: words, error: displayWordsError },
-  ] = useLazyQuery(GET_WORDS, {})
+  ] = useLazyQuery(GET_WORDS, {
+    fetchPolicy: 'no-cache',
+  })
 
   const handleDelete = async () => {
     try {
