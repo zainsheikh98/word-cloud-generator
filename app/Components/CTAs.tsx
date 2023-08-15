@@ -1,13 +1,15 @@
 'use client'
+export const dynamic = 'force-dynamic'
 
 import React, { useState } from 'react'
 import { Toast, WordCloud } from '@/app/Components'
-import { deleteWordCloudAction, displayWordCloudAction } from '@/app/actions'
+import { deleteWordCloudAction } from '@/app/actions'
+import { useLazyQuery } from '@apollo/client'
+import { GET_WORDS } from '@/lib/graphql/queries'
 
 const CTAs = () => {
   const [loading, setLoading] = useState(false)
   const [showWordCloud, setShowWordCloud] = useState(false)
-  const [words, setWords] = useState<string[]>([''])
   const [notification, setNotification] = useState<{
     message: string
     type: 'Success' | 'Error'
@@ -15,6 +17,11 @@ const CTAs = () => {
     message: '',
     type: 'Success',
   })
+
+  const [
+    getWords,
+    { loading: loadingWords, data: words, error: displayWordsError },
+  ] = useLazyQuery(GET_WORDS, {})
 
   const handleDelete = async () => {
     try {
@@ -36,6 +43,7 @@ const CTAs = () => {
       console.log('Error while calling: "handleDelete()"', error)
     } finally {
       setLoading(false)
+      setShowWordCloud(false)
       setTimeout(() => {
         setNotification({
           message: '',
@@ -47,26 +55,19 @@ const CTAs = () => {
 
   const handleDisplayWordCloud = async () => {
     try {
-      setLoading(true)
-      const response = await displayWordCloudAction({ path: '/' })
-      if (!response?.wordsCount) {
-        setNotification({
-          message: `DB is Empty!`,
-          type: 'Error',
-        })
-      }
-      if (response?.error) {
-        setNotification({
-          message: `${response?.error || 'Something went wrong!'}`,
-          type: 'Error',
-        })
-      }
-      setWords(response?.words as string[])
-      setShowWordCloud(true)
+      await getWords()
+      let message = ''
+      if (displayWordsError)
+        message = `${displayWordsError?.message || 'Something went wrong!'}`
+      if (!words?.words?.length) message = 'DB is empty!'
+      if (words?.words?.length) setShowWordCloud(true)
+      setNotification({
+        message,
+        type: 'Error',
+      })
     } catch (error) {
       console.log('Error while calling: "handleDisplayWordCloud()"', error)
     } finally {
-      setLoading(false)
       setTimeout(() => {
         setNotification({
           message: '',
@@ -92,7 +93,7 @@ const CTAs = () => {
               Clear DB
             </button>
             <button
-              disabled={loading}
+              disabled={loadingWords}
               className="w-64 flex-shrink-0 text-white bg-indigo-500 border-0 py-2 px-8 focus:outline-none hover:bg-indigo-600 rounded text-lg mt-10 sm:mt-0"
               onClick={handleDisplayWordCloud}
             >
@@ -101,7 +102,7 @@ const CTAs = () => {
           </div>
         </div>
       </section>
-      {showWordCloud && <WordCloud words={words} />}
+      {showWordCloud && <WordCloud words={words?.words} />}
     </>
   )
 }

@@ -1,10 +1,6 @@
 'use server'
 
-import {
-  AddToWordCloud,
-  deleteWordCloud,
-  displayWordCloud,
-} from '@/server/Services'
+import { AddToWordCloud, deleteWordCloud } from '@/server/Services'
 import { revalidatePath } from 'next/cache'
 
 const AddToWordCloudAction = async ({
@@ -23,16 +19,6 @@ const AddToWordCloudAction = async ({
   }
 }
 
-const displayWordCloudAction = async ({ path }: { path: string }) => {
-  try {
-    const words = await displayWordCloud()
-    revalidatePath(path)
-    return { words, wordsCount: words?.length }
-  } catch (error) {
-    return { error: (error as Error)?.message }
-  }
-}
-
 const deleteWordCloudAction = async ({ path }: { path: string }) => {
   try {
     const deletedWords = await deleteWordCloud()
@@ -43,4 +29,4 @@ const deleteWordCloudAction = async ({ path }: { path: string }) => {
   }
 }
 
-export { AddToWordCloudAction, deleteWordCloudAction, displayWordCloudAction }
+export { AddToWordCloudAction, deleteWordCloudAction }

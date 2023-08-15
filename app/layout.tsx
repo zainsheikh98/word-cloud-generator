@@ -1,3 +1,4 @@
+import { ApolloWrapper } from '@/lib/graphql/client'
 import './globals.css'
 import type { Metadata } from 'next'
 import { Inter } from 'next/font/google'
@@ -17,7 +18,7 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body suppressHydrationWarning className={inter.className}>
-        {children}
+        <ApolloWrapper>{children}</ApolloWrapper>
       </body>
     </html>
   )

@@ -17,7 +17,7 @@ const Toast = ({ message, type }: ToastProps) => {
 
   return (
     <div
-      className={`flex items-center ${COLOR_SCHEME} border-l-4 py-2 px-3 shadow-md mb-2`}
+      className={`flex items-center ${COLOR_SCHEME} border-l-4 py-2 px-3 shadow-md mb-2 absolute inset-x-0 top-0`}
     >
       <div className="text-red-500 rounded-full bg-white mr-3">{ICON}</div>
       <div className="text-white max-w-xs ">{message}</div>
