@@ -1,4 +1,4 @@
-import { displayWordCloud } from '@/server/Services'
+import { deleteWordCloud, displayWordCloud } from '@/server/Services'
 import { calculateWordFrequency, sentencesToWords } from '@/utils'
 
 const resolvers = {
@@ -18,6 +18,15 @@ const resolvers = {
           })
         }
         return wordsFrequencyList
+      } catch (error) {
+        throw new Error((error as Error)?.message)
+      }
+    },
+    deleteWords: async () => {
+      try {
+        const data = await deleteWordCloud()
+        const { deletedCount } = data
+        return { deletedCount }
       } catch (error) {
         throw new Error((error as Error)?.message)
       }

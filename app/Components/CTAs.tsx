@@ -1,14 +1,12 @@
 'use client'
 export const dynamic = 'force-dynamic'
 
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import { Toast, WordCloud } from '@/app/Components'
-import { deleteWordCloudAction } from '@/app/actions'
 import { useLazyQuery } from '@apollo/client'
-import { GET_WORDS } from '@/lib/graphql/queries'
+import { DELETE_WORDS, GET_WORDS } from '@/lib/graphql/queries'
 
 const CTAs = () => {
-  const [loading, setLoading] = useState(false)
   const [showWordCloud, setShowWordCloud] = useState(false)
   const [notification, setNotification] = useState<{
     message: string
@@ -20,31 +18,65 @@ const CTAs = () => {
 
   const [
     getWords,
-    { loading: loadingWords, data: words, error: displayWordsError },
+    {
+      called: isDisplayWordsCalled,
+      loading: loadingWords,
+      data: wordsResponse,
+      error: displayWordsError,
+    },
   ] = useLazyQuery(GET_WORDS, {
     fetchPolicy: 'no-cache',
   })
 
+  const [
+    deleteWords,
+    {
+      called: isDeleteWordsCalled,
+      loading: loadingDelete,
+      data: deleteResponse,
+      error: deleteWordsError,
+    },
+  ] = useLazyQuery(DELETE_WORDS, {
+    fetchPolicy: 'no-cache',
+  })
+
+  useEffect(() => {
+    if (deleteWordsError)
+      setNotification({
+        message: `${deleteWordsError?.message || 'Something went wrong!'}`,
+        type: 'Error',
+      })
+
+    if (isDeleteWordsCalled && !loadingDelete)
+      setNotification({
+        message: `${
+          deleteResponse?.deleteWords?.deletedCount || 0
+        } Records Removed!`,
+        type: 'Success',
+      })
+  }, [deleteResponse, deleteWordsError, isDeleteWordsCalled, loadingDelete])
+
+  useEffect(() => {
+    if (displayWordsError)
+      setNotification({
+        message: `${displayWordsError?.message || 'Something went wrong!'}`,
+        type: 'Error',
+      })
+    if (isDisplayWordsCalled && !loadingWords && !wordsResponse?.words?.length)
+      setNotification({
+        message: 'DB is empty!',
+        type: 'Error',
+      })
+
+    if (wordsResponse?.words?.length) setShowWordCloud(true)
+  }, [displayWordsError, isDisplayWordsCalled, loadingWords, wordsResponse])
+
   const handleDelete = async () => {
     try {
-      setLoading(true)
-      const response = await deleteWordCloudAction({ path: '/' })
-      if (response?.recordsDeleted) {
-        setNotification({
-          message: `${response?.recordsDeleted} Records Removed!`,
-          type: 'Success',
-        })
-      }
-      if (response?.error) {
-        setNotification({
-          message: `${response?.error || 'Something went wrong!'}`,
-          type: 'Error',
-        })
-      }
+      await deleteWords()
     } catch (error) {
       console.log('Error while calling: "handleDelete()"', error)
     } finally {
-      setLoading(false)
       setShowWordCloud(false)
       setTimeout(() => {
         setNotification({
@@ -58,15 +90,6 @@ const CTAs = () => {
   const handleDisplayWordCloud = async () => {
     try {
       await getWords()
-      let message = ''
-      if (displayWordsError)
-        message = `${displayWordsError?.message || 'Something went wrong!'}`
-      if (!words?.words?.length) message = 'DB is empty!'
-      if (words?.words?.length) setShowWordCloud(true)
-      setNotification({
-        message,
-        type: 'Error',
-      })
     } catch (error) {
       console.log('Error while calling: "handleDisplayWordCloud()"', error)
     } finally {
@@ -88,7 +111,7 @@ const CTAs = () => {
         <div className="container w-full mx-auto">
           <div className="w-full flex flex-row sm:flex-row sm:items-start items-start justify-between mx-auto">
             <button
-              disabled={loading}
+              disabled={loadingDelete}
               onClick={handleDelete}
               className="w-64 flex-shrink-0 text-white bg-red-500 border-0 py-2 px-8 focus:outline-none hover:bg-red-600 rounded text-lg mt-10 sm:mt-0"
             >
@@ -104,7 +127,7 @@ const CTAs = () => {
           </div>
         </div>
       </section>
-      {showWordCloud && <WordCloud words={words?.words} />}
+      {showWordCloud && <WordCloud words={wordsResponse?.words} />}
     </>
   )
 }

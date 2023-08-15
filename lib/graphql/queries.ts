@@ -8,4 +8,12 @@ const GET_WORDS = gql`
     }
   }
 `
-export { GET_WORDS }
+
+const DELETE_WORDS = gql`
+  query {
+    deleteWords {
+      deletedCount
+    }
+  }
+`
+export { GET_WORDS, DELETE_WORDS }
