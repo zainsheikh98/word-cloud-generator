@@ -1,4 +1,8 @@
-import { deleteWordCloud, displayWordCloud } from '@/server/Services'
+import {
+  AddToWordCloud,
+  deleteWordCloud,
+  displayWordCloud,
+} from '@/server/Services'
 import { calculateWordFrequency, sentencesToWords } from '@/utils'
 
 const resolvers = {
@@ -27,6 +31,17 @@ const resolvers = {
         const data = await deleteWordCloud()
         const { deletedCount } = data
         return { deletedCount }
+      } catch (error) {
+        throw new Error((error as Error)?.message)
+      }
+    },
+  },
+  Mutation: {
+    addWord: async (_: undefined, { input }: { input: { word: string } }) => {
+      try {
+        const { word } = input
+        const AddedWord = await AddToWordCloud(word)
+        return AddedWord
       } catch (error) {
         throw new Error((error as Error)?.message)
       }

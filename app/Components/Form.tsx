@@ -1,52 +1,57 @@
 'use client'
 
-import React, { useState } from 'react'
-import { AddToWordCloudAction } from '../actions'
+import React, { useEffect, useState } from 'react'
 import Loader from '@/public/icons/Loader'
 import { Toast } from '@/app/Components/'
-import { setTimeout } from 'timers'
+import { ToastNotification } from '@/types'
+import { ADD_WORD } from '@/lib/graphql/queries'
+import { useMutation } from '@apollo/client'
 
 const Form = () => {
-  const [loading, setLoading] = useState(false)
-  const [notification, setNotification] = useState<{
-    message: string
-    type: 'Success' | 'Error'
-  }>({
+  const [notification, setNotification] = useState<ToastNotification>({
     message: '',
     type: 'Success',
   })
 
+  const [addWord, { called, loading, data, error }] = useMutation(ADD_WORD)
+
   const handleSubmit = async (data: FormData) => {
     try {
-      setLoading(true)
       const word = data.get('word')
       if (!word || typeof word !== 'string') {
         return {
-          error: 'Missing Word!',
+          error: 'Please enter a valid word!',
         }
       }
-      const response = await AddToWordCloudAction({ word, path: '/' })
-      return response
+      await addWord({
+        variables: {
+          data: {
+            word,
+          },
+        },
+      })
     } catch (error) {
-      setLoading(false)
       console.log('Error while calling: "handleSubmit()"', error)
     }
   }
 
-  const handleFeedback = async (data: { error: Error; word: string }) => {
+  useEffect(() => {
     try {
-      if (data.error)
+      if (called && !loading && error)
         setNotification({
-          message: `Something Went Wrong: "${data.error}"`,
+          message: `${error?.message}`,
           type: 'Error',
         })
-      if (data.word)
+      if (called && !loading && data?.addWord?.word)
         setNotification({
-          message: `"${data.word}" Added To DB!`,
+          message: `"${data?.addWord?.word}" Added To DB!`,
           type: 'Success',
         })
     } catch (error) {
-      console.log('Error while calling: "handleFeedback()"', error)
+      console.log(
+        'Error while calling: "handleFeedback()"',
+        (error as Error)?.message
+      )
     } finally {
       setTimeout(() => {
         setNotification({
@@ -54,23 +59,15 @@ const Form = () => {
           type: 'Success',
         })
       }, 3000)
-      setLoading(false)
     }
-  }
+  }, [called, data?.addWord?.word, error, loading])
 
   return (
     <>
       {notification?.message && (
         <Toast message={notification?.message} type={notification?.type} />
       )}
-      <form
-        action={async (formData) => {
-          const data = await handleSubmit(formData)
-          await handleFeedback(data)
-        }}
-        key={Math.random()}
-        className="text-gray-600 body-font"
-      >
+      <form action={handleSubmit} className="text-gray-600 body-font">
         <div className="container py-24 mx-auto flex flex-wrap items-center w-full">
           <div className="bg-gray-100 rounded-lg p-8 flex flex-col mx-auto w-full mt-10 md:mt-0">
             <h2 className="text-gray-900 text-lg font-medium title-font mb-5">

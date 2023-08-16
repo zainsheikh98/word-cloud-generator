@@ -5,13 +5,11 @@ import React, { useEffect, useState } from 'react'
 import { Toast, WordCloud } from '@/app/Components'
 import { useLazyQuery } from '@apollo/client'
 import { DELETE_WORDS, GET_WORDS } from '@/lib/graphql/queries'
+import { ToastNotification } from '@/types'
 
 const CTAs = () => {
   const [showWordCloud, setShowWordCloud] = useState(false)
-  const [notification, setNotification] = useState<{
-    message: string
-    type: 'Success' | 'Error'
-  }>({
+  const [notification, setNotification] = useState<ToastNotification>({
     message: '',
     type: 'Success',
   })

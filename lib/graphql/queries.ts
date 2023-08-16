@@ -16,4 +16,13 @@ const DELETE_WORDS = gql`
     }
   }
 `
-export { GET_WORDS, DELETE_WORDS }
+
+const ADD_WORD = gql`
+  mutation ($data: AddWordInput!) {
+    addWord(input: $data) {
+      word
+      id
+    }
+  }
+`
+export { GET_WORDS, DELETE_WORDS, ADD_WORD }
