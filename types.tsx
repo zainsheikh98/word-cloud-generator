@@ -1,4 +1,4 @@
-type ToastNotification = {
+interface ToastNotification {
   message: string
   type: 'Success' | 'Error'
 }

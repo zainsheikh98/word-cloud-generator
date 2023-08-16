@@ -1,7 +1,7 @@
 'use client'
 export const dynamic = 'force-dynamic'
 
-import React, { useEffect, useState } from 'react'
+import React, { useCallback, useEffect, useState } from 'react'
 import { Toast, WordCloud } from '@/app/Components'
 import { useLazyQuery } from '@apollo/client'
 import { DELETE_WORDS, GET_WORDS } from '@/lib/graphql/queries'
@@ -76,12 +76,6 @@ const CTAs = () => {
       console.log('Error while calling: "handleDelete()"', error)
     } finally {
       setShowWordCloud(false)
-      setTimeout(() => {
-        setNotification({
-          message: '',
-          type: 'Success',
-        })
-      }, 3000)
     }
   }
 
@@ -90,21 +84,25 @@ const CTAs = () => {
       await getWords()
     } catch (error) {
       console.log('Error while calling: "handleDisplayWordCloud()"', error)
-    } finally {
-      setTimeout(() => {
-        setNotification({
-          message: '',
-          type: 'Success',
-        })
-      }, 3000)
     }
   }
+
+  const hideToast = useCallback(() => {
+    setNotification({
+      message: '',
+      type: 'Success',
+    })
+  }, [])
 
   return (
     <>
       <section className="w-2/4 text-gray-600 body-font">
         {notification?.message && (
-          <Toast message={notification?.message} type={notification?.type} />
+          <Toast
+            hideToast={hideToast}
+            message={notification?.message}
+            type={notification?.type}
+          />
         )}
         <div className="container w-full mx-auto">
           <div className="w-full flex flex-row sm:flex-row sm:items-start items-start justify-between mx-auto">

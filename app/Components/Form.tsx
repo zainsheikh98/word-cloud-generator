@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useEffect, useState } from 'react'
+import React, { useCallback, useEffect, useState } from 'react'
 import Loader from '@/public/icons/Loader'
 import { Toast } from '@/app/Components/'
 import { ToastNotification } from '@/types'
@@ -52,20 +52,24 @@ const Form = () => {
         'Error while calling: "handleFeedback()"',
         (error as Error)?.message
       )
-    } finally {
-      setTimeout(() => {
-        setNotification({
-          message: '',
-          type: 'Success',
-        })
-      }, 3000)
     }
   }, [called, data?.addWord?.word, error, loading])
+
+  const hideToast = useCallback(() => {
+    setNotification({
+      message: '',
+      type: 'Success',
+    })
+  }, [])
 
   return (
     <>
       {notification?.message && (
-        <Toast message={notification?.message} type={notification?.type} />
+        <Toast
+          hideToast={hideToast}
+          message={notification?.message}
+          type={notification?.type}
+        />
       )}
       <form action={handleSubmit} className="text-gray-600 body-font">
         <div className="container py-24 mx-auto flex flex-wrap items-center w-full">
