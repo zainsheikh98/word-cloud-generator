@@ -6,12 +6,12 @@ const resolvers = {
     words: async () => {
       try {
         const data = await displayWordCloud()
-        if (!data?.length) return { words: [] }
+        if (!data?.length) return []
         const words = sentencesToWords(data)
         const wordsWithFrequency = calculateWordFrequency(words)
         const wordsFrequencyList = []
 
-        for (const [word, frequency] of wordsWithFrequency.entries()) {
+        for (const [word, frequency] of wordsWithFrequency?.entries()) {
           wordsFrequencyList.push({
             word,
             frequency,
