@@ -1,45 +1,50 @@
 'use client'
-import React, { useEffect, useState } from 'react'
-import cloud from 'd3-cloud'
+import React from 'react'
+import ReactWordCloud from 'react-d3-cloud'
 
 interface WordCloudProps {
   words: { word: string; frequency: number }[]
 }
 
+const rotate = () => (~~(Math.random() * 6) - 3) * 30
+
+const COLORS = [
+  '#FFB997',
+  '#F67E7D',
+  '#EBF2FA',
+  '#D9E5D6',
+  '#D6D4A0',
+  '#DB5461',
+  '#FFBF00',
+  '#C6DBF0',
+  '#D1CFE2',
+]
+
 const WordCloud = ({ words }: WordCloudProps) => {
-  const [canvas, setCanvas] = useState<HTMLCanvasElement>()
-
-  useEffect(() => {
-    const canvas = document?.querySelector('#canvas')
-    const context = (canvas as HTMLCanvasElement)?.getContext('2d')
-    if (context) context.fillStyle = 'white'
-    setCanvas(canvas as HTMLCanvasElement)
-  }, [])
-
-  const mappedWords = words?.map(function ({ word, frequency }) {
+  const data = words?.map(function ({ word, frequency }) {
     return {
       text: word,
-      size: frequency * 30,
+      value: frequency,
     }
   })
 
-  canvas &&
-    cloud()
-      .size([1, 1])
-      .canvas(() => canvas)
-      .words(mappedWords)
-      .fontWeight(300)
-      .rotate(() => Math.floor(Math.random() * 4) * 90)
-      .font('serif')
-      .fontSize((word) => word.size as number)
-      .start()
-
   return (
-    <section className="overflow-hidden">
-      <div className="container px-24 py-24 mx-auto">
-        <canvas id="canvas"></canvas>
-      </div>
-    </section>
+    <div className="p-4 w-full">
+      <ReactWordCloud
+        data={data}
+        width={100}
+        height={100}
+        font="Times"
+        fontStyle="italic"
+        fontWeight="bold"
+        fontSize={(word) => word.value * 15}
+        spiral="rectangular"
+        rotate={rotate}
+        padding={1}
+        random={Math.random}
+        fill={() => COLORS[Math.ceil(Math.random() * 8)]}
+      />
+    </div>
   )
 }
 
