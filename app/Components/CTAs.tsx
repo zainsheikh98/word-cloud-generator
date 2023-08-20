@@ -96,31 +96,29 @@ const CTAs = () => {
 
   return (
     <>
-      <section className="w-2/4 text-gray-600 body-font">
-        {notification?.message && (
-          <Toast
-            hideToast={hideToast}
-            message={notification?.message}
-            type={notification?.type}
-          />
-        )}
-        <div className="container w-full mx-auto">
-          <div className="w-full flex flex-row sm:flex-row sm:items-start items-start justify-between mx-auto">
-            <button
-              disabled={loadingDelete}
-              onClick={handleDelete}
-              className="w-64 flex-shrink-0 text-white bg-red-500 border-0 py-2 px-8 focus:outline-none hover:bg-red-600 rounded text-lg mt-10 sm:mt-0"
-            >
-              Clear DB
-            </button>
-            <button
-              disabled={loadingWords}
-              className="w-64 flex-shrink-0 text-white bg-indigo-500 border-0 py-2 px-8 focus:outline-none hover:bg-indigo-600 rounded text-lg mt-10 sm:mt-0"
-              onClick={handleDisplayWordCloud}
-            >
-              Display Word Cloud
-            </button>
-          </div>
+      {notification?.message && (
+        <Toast
+          hideToast={hideToast}
+          message={notification?.message}
+          type={notification?.type}
+        />
+      )}
+      <section className="container w-full lg:w-[50%] text-gray-600 body-font">
+        <div className="w-full flex flex-col items-center justify-center content-center md:flex-row md:justify-between">
+          <button
+            disabled={loadingDelete}
+            onClick={handleDelete}
+            className="w-full md:w-64 flex-shrink-0 text-white bg-red-500 border-0 py-2 px-8 focus:outline-none hover:bg-red-600 rounded text-lg mt-2"
+          >
+            Clear DB
+          </button>
+          <button
+            disabled={loadingWords}
+            className="w-full md:w-64 flex-shrink-0 text-white bg-indigo-500 border-0 py-2 px-8 focus:outline-none hover:bg-indigo-600 rounded text-lg mt-2"
+            onClick={handleDisplayWordCloud}
+          >
+            Display Word Cloud
+          </button>
         </div>
       </section>
       {showWordCloud && <WordCloud words={wordsResponse?.words} />}
